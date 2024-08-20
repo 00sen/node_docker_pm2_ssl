@@ -1,0 +1,41 @@
+name: node-docker-pm2-ssl
+
+services:
+  # NODE
+  app:
+    container_name: app
+    build: .
+    user: "node"
+    ports:
+      - 3000:3000
+    volumes:
+      - app:/home/node/app
+    environment:
+      - NODE_ENV=production
+    networks:
+      - main-network
+  # NGINX
+  nginx:
+    image: nginx:stable-perl
+    ports:
+      - 8080:80
+    environment:
+      - NGINX_HOST=example.com
+      - NGINX_PORT=80
+    volumes:
+      - nginx:/usr/share/nginx/html
+  # CERTBOT
+
+volumes:
+  app:
+    driver: local
+  nginx:
+    driver: local
+  certbot:
+    driver: local
+
+networks:
+  main-network:
+    driver: bridge
+
+  
