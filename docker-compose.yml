@@ -24,7 +24,6 @@ services:
       - nginx-config:/etc/nginx/conf.d
     networks:
       - main-network
-  # CERTBOT
 
 volumes:
   node-app:
