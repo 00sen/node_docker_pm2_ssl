@@ -14,8 +14,28 @@ services:
       - PORT=3000
     networks:
       - main-network
+
+  #CERTBOT
+  certbot:
+    container_name: certbot
+    # ports:
+    # - 80:80
+    # - 443:443
+    image: certbot/certbot:nightly
+    environment:
+      - DOMAIN=senservers.com
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email a01703572@tec.mx -d senservers.com --agree-tos --non-interactive
+    networks:
+      - main-network
+
   # NGINX
   nginx:
+    depends_on:
+      - node-app
+      - certbot
     container_name: nginx
     restart: unless-stopped
     image: sen00/node-docker-pm2-ssl:nginx
@@ -25,30 +45,23 @@ services:
     environment:
       - NODE_CONTAINER_NAME=node-app
       - NODE_CONTAINER_PORT=3000
+      - DOMAIN=senservers.com
     volumes:
       - nginx:/etc/nginx
-      # - certbot-conf:/etc/letsencrypt
-      # - certbot-www:/var/www/certbot
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
     networks:
       - main-network
-  # CERTBOT
-  # certbot:
-  #   container_name: certbot
-  #   image: certbot/certbot:nightly
-  #   volumes:
-  #     - certbot-conf:/etc/letsencrypt
-  #     - certbot-www:/var/www/certbot
-  #   command: certonly --webroot -w /var/www/certbot --force-renewal --email a01703572@tec.mx -d iospace.cloud --agree-tos
 
 volumes:
   node-app:
     driver: local
   nginx:
     driver: local
-  # certbot-conf:
-  #   driver: local
-  # certbot-www:
-  #   driver: local
+  certbot-conf:
+    driver: local
+  certbot-www:
+    driver: local
 
 networks:
   main-network:
