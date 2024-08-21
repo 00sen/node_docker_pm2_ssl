@@ -4,6 +4,7 @@ services:
   # NODE
   node-app:
     image: sen00/node-docker-pm2-ssl:nodeapp
+    restart: unless-stopped
     container_name: node-app
     user: "node"
     volumes:
@@ -22,13 +23,27 @@ services:
       - 443:443
     volumes:
       - nginx-config:/etc/nginx/conf.d
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
     networks:
       - main-network
+  # CERTBOT
+  certbot:
+    container_name: certbot
+    image: certbot/certbot:nightly
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email a01703572@tec.mx -d iospace.cloud --agree-tos
 
 volumes:
   node-app:
     driver: local
   nginx-config:
+    driver: local
+  certbot-conf:
+    driver: local
+  certbot-www:
     driver: local
 
 networks:
