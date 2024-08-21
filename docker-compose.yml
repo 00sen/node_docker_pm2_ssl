@@ -17,7 +17,7 @@ services:
   # NGINX
   nginx:
     container_name: nginx
-    # restart: unless-stopped
+    restart: unless-stopped
     image: sen00/node-docker-pm2-ssl:nginx
     ports:
       - 80:80
@@ -29,9 +29,6 @@ services:
       - nginx:/etc/nginx
       # - certbot-conf:/etc/letsencrypt
       # - certbot-www:/var/www/certbot
-    command:
-      - sed -i 's/${NODE_CONTAINER_NAME}/$NODE_CONTAINER_NAME/g' /etc/nginx/nginx.conf
-      - sed -i 's/${NODE_CONTAINER_PORT}/$NODE_CONTAINER_PORT/g' /etc/nginx/nginx.conf
     networks:
       - main-network
   # CERTBOT

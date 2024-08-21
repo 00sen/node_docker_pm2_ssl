@@ -1,2 +1,2 @@
 FROM nginx:stable-perl
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY default.conf.template /etc/nginx/templates/
