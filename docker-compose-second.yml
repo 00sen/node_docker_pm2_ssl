@@ -20,16 +20,31 @@ services:
   nginx:
     container_name: nginx
     restart: unless-stopped
-    image: sen00/node-nginx-ssl:nginx-first
+    image: sen00/node-nginx-ssl:nginx-second
     ports:
       - 80:80
       - 443:443
     environment:
       - NODE_CONTAINER_NAME=node-app
       # Port of node is 3000
+      # Cambiar el dominio al deseado
       - DOMAIN=senservers.com
     volumes:
       - nginx:/etc/nginx
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    networks:
+      - main-network
+
+  #CERTBOT
+  certbot:
+    container_name: certbot
+    image: certbot/certbot:nightly
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+      # En el siguiente comando cambiar el correo y el dominio
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email a01703572@tec.mx -d senservers.com --agree-tos
     networks:
       - main-network
 
@@ -37,6 +52,10 @@ volumes:
   node-app:
     driver: local
   nginx:
+    driver: local
+  certbot-conf:
+    driver: local
+  certbot-www:
     driver: local
 
 networks:

@@ -6,4 +6,8 @@ server {
     location / {
         proxy_pass http://$NODE_CONTAINER_NAME:3000;
     }
+
+    location ~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
 }
