@@ -1,63 +1,28 @@
-name: node-docker-pm2-ssl
-
+# Docker compose debe correr en la carpeta principal del usuario principal
 services:
-  # NODE
-  node-app:
-    image: sen00/node-docker-pm2-ssl:nodeapp
-    restart: unless-stopped
-    container_name: node-app
-    user: "node"
+  # PREBUILD
+  prebuild:
+    image: alpine:edge
     volumes:
-      - node-app:/home/node/node-app
+      - ./nginx:/mnt/nginx
+    command: /bin/sh -c "touch /mnt/nginx/nginx.conf && echo 'events { worker_connections  1024; } http { server_tokens off; charset utf-8; server { listen 80 default_server; server_name _; location / { proxy_pass http://node:3000; } } }' > /mnt/nginx/nginx.conf"
+
+  # NODE
+  node:
+    image: sen00/node-nginx-ssl:node
+    restart: unless-stopped
+    container_name: node
+    user: "node"
     environment:
       - NODE_ENV=production
-      - PORT=3000
-    networks:
-      - main-network
 
   # NGINX
   nginx:
     container_name: nginx
     restart: unless-stopped
-    image: sen00/node-docker-pm2-ssl:nginx
+    image: nginx:stable-perl
     ports:
       - 80:80
       - 443:443
-    environment:
-      - NODE_CONTAINER_NAME=node-app
-      - NODE_CONTAINER_PORT=3000
-      - DOMAIN=senservers.com
     volumes:
-      - nginx:/etc/nginx
-      - certbot-conf:/etc/letsencrypt:ro
-      - certbot-www:/var/www/certbot:ro
-    networks:
-      - main-network
-
-  #CERTBOT
-  certbot:
-    container_name: certbot
-    image: certbot/certbot:nightly
-    environment:
-      - DOMAIN=senservers.com
-    volumes:
-      - certbot-conf:/etc/letsencrypt/:rw
-      - certbot-www:/var/www/certbot/:rw
-    entrypoint:
-      - "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    networks:
-      - main-network
-
-volumes:
-  node-app:
-    driver: local
-  nginx:
-    driver: local
-  certbot-conf:
-    driver: local
-  certbot-www:
-    driver: local
-
-networks:
-  main-network:
-    driver: bridge
+      - ./nginx:/etc/nginx

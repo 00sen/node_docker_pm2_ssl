@@ -10,6 +10,4 @@ WORKDIR /home/node/node-app
 RUN npm install -g pm2
 RUN npm install 
 
-RUN export PORT
-
 CMD ["pm2-runtime","start", "app.js"]
