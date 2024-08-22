@@ -1,4 +1,5 @@
 # Docker compose debe correr en la carpeta principal del usuario principal
+# QUITAR PREBUILD UNA VEZ QUE YA CORRIO POR PRIMERA VEZ EL DOCKER-COMPOSE 
 
 services:
   # PREBUILD
