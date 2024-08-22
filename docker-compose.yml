@@ -5,9 +5,10 @@ services:
   # PREBUILD
   prebuild:
     image: alpine:edge
+    container_name: prebuild
     volumes:
       - ./nginx:/mnt/nginx
-    command: /bin/sh -c "touch /mnt/nginx/nginx.conf && echo 'events { worker_connections  1024; } http { server_tokens off; charset utf-8; server { listen 80 default_server; server_name _; location / { proxy_pass http://node:3000; } } }' > /mnt/nginx/nginx.conf"
+    command: /bin/sh -c "touch /mnt/nginx/nginx.conf && echo 'events { worker_connections 1024; } http { server_tokens off; charset utf-8; server { listen 80 default_server; server_name _; location / { proxy_pass http://node:3000; } location ~ /.well-known/acme-challenge/ { root /var/www/certbot; } } }' > /mnt/nginx/nginx.conf"
 
   # NODE
   node:
@@ -28,3 +29,15 @@ services:
       - 443:443
     volumes:
       - ./nginx:/etc/nginx
+      # hasta aqui todo funciona bien ----------------
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
+  # CERTBOT
+  certbot:
+    container_name: certbot
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email a01703572@tec.mx -d senservers.com --agree-tos
