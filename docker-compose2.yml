@@ -1,0 +1,25 @@
+# Docker compose debe correr en la carpeta principal del usuario principal
+# ESTE ES EL SEGUNDO, ESE SI SE PUEDE USAR A VOLUNTAD
+
+services:
+  # NODE
+  node:
+    image: sen00/node-nginx-ssl:node
+    restart: unless-stopped
+    container_name: node
+    user: "node"
+    environment:
+      - NODE_ENV=production
+
+  # NGINX
+  nginx:
+    container_name: nginx
+    restart: unless-stopped
+    image: nginx:stable-perl
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx:/etc/nginx
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
